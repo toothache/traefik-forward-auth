@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 // Google provider
@@ -112,4 +114,8 @@ func (g *Google) GetUser(token string) (User, error) {
 	err = json.NewDecoder(res.Body).Decode(&user)
 
 	return user, err
+}
+
+func (g *Google) Authenticate(token string) (*jwt.Token, error) {
+	return nil, errors.New("Not Implemented")
 }

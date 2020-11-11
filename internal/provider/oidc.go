@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/containous/traefik/v2/pkg/log"
 	"github.com/coreos/go-oidc"
+	jwt "github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"
 )
 
@@ -37,6 +39,8 @@ func (o *OIDC) Setup() error {
 
 	// Try to initiate provider
 	o.provider, err = oidc.NewProvider(o.ctx, o.IssuerURL)
+
+	log.Info(o.provider.Verifier(&oidc.Config{ClientID: "3dd21f62-c836-4689-84f6-6780958cf002"}))
 	if err != nil {
 		return err
 	}
@@ -96,4 +100,8 @@ func (o *OIDC) GetUser(token string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (o *OIDC) Authenticate(token string) (*jwt.Token, error) {
+	return nil, errors.New("Not Implemented")
 }

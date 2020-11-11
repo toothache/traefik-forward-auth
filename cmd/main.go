@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	internal "github.com/thomseddon/traefik-forward-auth/internal"
@@ -16,6 +17,8 @@ func main() {
 
 	// Perform config validation
 	config.Validate()
+
+	fmt.Println("Config validated")
 
 	// Build server
 	server := internal.NewServer()

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"
 )
 
@@ -93,4 +94,8 @@ func (o *GenericOAuth) GetUser(token string) (User, error) {
 	err = json.NewDecoder(res.Body).Decode(&user)
 
 	return user, err
+}
+
+func (o *GenericOAuth) Authenticate(token string) (*jwt.Token, error) {
+	return nil, errors.New("Not Implemented")
 }

@@ -3,6 +3,7 @@ package tfa
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/containous/traefik/v2/pkg/rules"
 	"github.com/sirupsen/logrus"
@@ -79,6 +80,18 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Logging setup
 		logger := s.logger(r, "Auth", rule, "Authenticating request")
+
+		bearToken := ""
+		authToken := r.Header.Get("Authorization")
+		if authToken != "" {
+			bearToken = strings.Split(authToken, "Bearer ")[1]
+		}
+
+		if bearToken != "" {
+			logger.Info("Get bearToken")
+			logger.Info(bearToken)
+			logger.Info("================")
+		}
 
 		// Get auth cookie
 		c, err := r.Cookie(config.CookieName)

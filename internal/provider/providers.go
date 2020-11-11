@@ -4,6 +4,7 @@ import (
 	"context"
 	// "net/url"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2"
 )
 
@@ -21,6 +22,7 @@ type Provider interface {
 	ExchangeCode(redirectURI, code string) (string, error)
 	GetUser(token string) (User, error)
 	Setup() error
+	Authenticate(token string) (*jwt.Token, error)
 }
 
 type token struct {
