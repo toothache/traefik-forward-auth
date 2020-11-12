@@ -80,24 +80,36 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 		// Logging setup
 		logger := s.logger(r, "Auth", rule, "Authenticating request")
 
-		// Get auth cookie
-		c, err := r.Cookie(config.CookieName)
-		if err != nil {
-			s.authRedirect(logger, w, r, p)
-			return
-		}
-
-		// Validate cookie
-		email, err := ValidateCookie(r, c)
-		if err != nil {
-			if err.Error() == "Cookie has expired" {
-				logger.Info("Cookie has expired")
-				s.authRedirect(logger, w, r, p)
-			} else {
-				logger.WithField("error", err).Warn("Invalid cookie")
+		var email string
+		authToken := r.Header.Get("Authorization")
+		if authToken != "" {
+			var err error
+			email, err = ValidateAuthHeader(r, p)
+			if err != nil {
+				logger.WithField("error", err).Warn("Invalid token")
 				http.Error(w, "Not authorized", 401)
+				return
 			}
-			return
+		} else {
+			// Get auth cookie
+			c, err := r.Cookie(config.CookieName)
+			if err != nil {
+				s.authRedirect(logger, w, r, p)
+				return
+			}
+
+			// Validate cookie
+			email, err = ValidateCookie(r, c)
+			if err != nil {
+				if err.Error() == "Cookie has expired" {
+					logger.Info("Cookie has expired")
+					s.authRedirect(logger, w, r, p)
+				} else {
+					logger.WithField("error", err).Warn("Invalid cookie")
+					http.Error(w, "Not authorized", 401)
+				}
+				return
+			}
 		}
 
 		// Validate user

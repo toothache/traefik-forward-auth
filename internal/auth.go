@@ -56,6 +56,27 @@ func ValidateCookie(r *http.Request, c *http.Cookie) (string, error) {
 	return parts[2], nil
 }
 
+// ValidateAuthHeader performs bearer token authentication
+func ValidateAuthHeader(r *http.Request, p provider.Provider) (string, error) {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		return "", errors.New("Missing Authorization Header")
+	}
+
+	parts := strings.Split(token, "Bearer ")
+	if len(parts) != 2 {
+		return "", errors.New("Invalid Authorization Header")
+	}
+
+	bearToken := parts[1]
+	user, err := p.GetUser(bearToken)
+	if err != nil {
+		return "", err
+	}
+
+	return user.Email, nil
+}
+
 // ValidateEmail checks if the given email address matches either a whitelisted
 // email address, as defined by the "whitelist" config parameter. Or is part of
 // a permitted domain, as defined by the "domains" config parameter
