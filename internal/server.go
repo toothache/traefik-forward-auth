@@ -3,6 +3,7 @@ package tfa
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/containous/traefik/v2/pkg/rules"
 	"github.com/sirupsen/logrus"
@@ -81,15 +82,22 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 		logger := s.logger(r, "Auth", rule, "Authenticating request")
 
 		var email string
-		authToken := r.Header.Get("Authorization")
-		if authToken != "" {
-			var err error
-			email, err = ValidateAuthHeader(r, p)
+		if authToken := r.Header.Get("Authorization"); authToken != "" {
+			parts := strings.Split(authToken, "Bearer ")
+			if len(parts) != 2 || parts[1] != "" {
+				logger.Warn("Invalid Authorization Header")
+				http.Error(w, "Not authorized", 401)
+				return
+			}
+
+			user, err := p.GetUser(parts[1])
 			if err != nil {
 				logger.WithField("error", err).Warn("Invalid token")
 				http.Error(w, "Not authorized", 401)
 				return
 			}
+
+			email = user.Email
 		} else {
 			// Get auth cookie
 			c, err := r.Cookie(config.CookieName)
