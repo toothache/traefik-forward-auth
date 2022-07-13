@@ -95,5 +95,26 @@ func (o *OIDC) GetUser(token string) (User, error) {
 		return user, err
 	}
 
+	// this is to deal with the case that client id and secret is used (azpacr = 1).
+	// in such case, email field is not present. to workaround, we use `oid` to
+	// represent the user. See also,
+	// https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens
+	if user.Email == "" {
+		var principal struct {
+			Oid string `json:"oid"`
+			Azpacr string `json:"azpacr"`
+		}
+
+		if err := idToken.Claims(&principal); err != nil {
+			return user, err
+		}
+
+		if principal.Azpacr != "1" {
+			return user, errors.New("oidc: invalid azpacr value")
+		}
+
+		user.Email = principal.Oid
+	}
+
 	return user, nil
 }

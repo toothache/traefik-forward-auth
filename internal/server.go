@@ -84,7 +84,7 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 		var email string
 		if authToken := r.Header.Get("Authorization"); authToken != "" {
 			parts := strings.Split(authToken, "Bearer ")
-			if len(parts) != 2 || parts[1] != "" {
+			if len(parts) != 2 || parts[1] == "" {
 				logger.Warn("Invalid Authorization Header")
 				http.Error(w, "Not authorized", 401)
 				return
