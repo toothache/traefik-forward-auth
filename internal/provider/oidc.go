@@ -101,7 +101,7 @@ func (o *OIDC) GetUser(token string) (User, error) {
 	// https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens
 	if user.Email == "" {
 		var principal struct {
-			Oid string `json:"oid"`
+			Oid    string `json:"oid"`
 			Azpacr string `json:"azpacr"`
 		}
 
@@ -109,7 +109,10 @@ func (o *OIDC) GetUser(token string) (User, error) {
 			return user, err
 		}
 
-		if principal.Azpacr != "1" {
+		// https://learn.microsoft.com/en-us/entra/identity-platform/access-token-claims-reference
+		// A replacement for appidacr. Indicates the authentication method of the client. For a public client, the value is 0.
+		// When you use the client ID and client secret, the value is 1. When you use a client certificate for authentication, the value is 2.
+		if principal.Azpacr != "1" && principal.Azpacr != "2" {
 			return user, errors.New("oidc: invalid azpacr value")
 		}
 
