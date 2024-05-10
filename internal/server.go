@@ -98,6 +98,10 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 			}
 
 			email = user.Email
+		} else if config.DisableOauth {
+			logger.Debug("Oauth is disabled")
+			http.Error(w, "Not authorized", 401)
+			return
 		} else {
 			// Get auth cookie
 			c, err := r.Cookie(config.CookieName)

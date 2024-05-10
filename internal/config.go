@@ -47,6 +47,8 @@ type Config struct {
 	Secret   []byte `json:"-"`
 	Lifetime time.Duration
 
+	DisableOauth        bool          `long:"disable-oauth" env:"DISABLE_OAUTH" description:"Disable oauth"`
+
 	// Legacy
 	CookieDomainsLegacy CookieDomains `long:"cookie-domains" env:"COOKIE_DOMAINS" description:"DEPRECATED - Use \"cookie-domain\""`
 	CookieSecretLegacy  string        `long:"cookie-secret" env:"COOKIE_SECRET" description:"DEPRECATED - Use \"secret\""  json:"-"`
